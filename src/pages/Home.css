@@ -1,0 +1,40 @@
+.home-container {
+  padding: 20px;
+  text-align: center;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.add-btn {
+  display: inline-block;
+  margin: 15px;
+  padding: 10px 20px;
+  background: #4CAF50;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.logout-btn {
+  margin: 10px;
+  padding: 8px 15px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 8px;
+}
+
+.food-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.food-card {
+  background: white;
+  margin: 10px;
+  padding: 20px;
+  border-radius: 12px;
+  width: 200px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
