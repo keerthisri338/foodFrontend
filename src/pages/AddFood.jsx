@@ -1,73 +1,63 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { addFood } from "../services/api";
 
 function AddFood() {
   const [name, setName] = useState("");
-  const [quantity, setQuantity] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
 
-  const handleAdd = () => {
-    const foods = JSON.parse(localStorage.getItem("foods")) || [];
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    foods.push({ name, quantity });
-    localStorage.setItem("foods", JSON.stringify(foods));
+    const foodData = {
+      name: name,
+      description: description,
+      price: Number(price),
+    };
 
-    alert("Food added!");
-    setName("");
-    setQuantity("");
+    try {
+      await addFood(foodData);
+      alert("Food Added Successfully to Backend");
+
+      setName("");
+      setDescription("");
+      setPrice("");
+    } catch (error) {
+      console.log(error);
+      alert("Failed to add food");
+    }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2>Add Food 🍱</h2>
+    <div>
+      <h2>Add Food</h2>
 
+      <form onSubmit={handleSubmit}>
         <input
-          style={styles.input}
+          type="text"
           placeholder="Food Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
 
         <input
-          style={styles.input}
-          placeholder="Quantity"
-          value={quantity}
-          onChange={(e) => setQuantity(e.target.value)}
+          type="text"
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
         />
 
-        <button style={styles.button} onClick={handleAdd}>
-          Add Food
-        </button>
-      </div>
+        <input
+          type="number"
+          placeholder="Price"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+        />
+
+        <button type="submit">Add Food</button>
+      </form>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    marginTop: "50px",
-  },
-  card: {
-    padding: "30px",
-    borderRadius: "15px",
-    background: "#fff",
-    boxShadow: "0 5px 20px rgba(0,0,0,0.2)",
-    textAlign: "center",
-  },
-  input: {
-    display: "block",
-    margin: "10px 0",
-    padding: "10px",
-    width: "200px",
-  },
-  button: {
-    padding: "10px",
-    background: "#ff7e5f",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-  },
-};
 
 export default AddFood;
