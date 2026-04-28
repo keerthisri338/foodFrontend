@@ -1,29 +1,72 @@
-.add-container {
-  height: 100vh;
+.add-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ff9966, #ff5e62);
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #43cea2, #185a9d);
+  font-family: "Segoe UI", sans-serif;
 }
 
 .add-card {
+  width: 850px;
   background: white;
-  padding: 30px;
-  border-radius: 12px;
+  border-radius: 25px;
+  display: flex;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+}
+
+.add-left {
+  flex: 1;
+  background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
+    url("https://images.unsplash.com/photo-1546069901-ba9599a7e63c");
+  background-size: cover;
+  color: white;
+  padding: 45px;
+}
+
+.add-left h1 {
+  font-size: 38px;
+}
+
+.add-left p {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.add-form {
+  flex: 1;
+  padding: 45px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.add-form h2 {
   text-align: center;
+  color: #333;
 }
 
-.add-card input {
-  display: block;
-  margin: 10px 0;
-  padding: 10px;
-  width: 250px;
+.add-form input,
+.add-form textarea {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  outline: none;
+  font-size: 15px;
 }
 
-.add-card button {
-  padding: 10px 20px;
-  background: #185a9d;
+.add-form textarea {
+  height: 100px;
+  resize: none;
+}
+
+.add-form button {
+  padding: 14px;
+  background: #ff6b35;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
 }
