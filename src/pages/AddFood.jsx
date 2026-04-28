@@ -1,5 +1,7 @@
+
 import React, { useState } from "react";
 import { addFood } from "../services/api";
+import "./Add.css";
 
 function AddFood() {
   const [name, setName] = useState("");
@@ -9,16 +11,14 @@ function AddFood() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const foodData = {
-      name: name,
-      description: description,
-      price: Number(price),
-    };
-
     try {
-      await addFood(foodData);
-      alert("Food Added Successfully to Backend");
+      await addFood({
+        name,
+        description,
+        price: Number(price),
+      });
 
+      alert("Food added successfully");
       setName("");
       setDescription("");
       setPrice("");
@@ -29,33 +29,45 @@ function AddFood() {
   };
 
   return (
-    <div>
-      <h2>Add Food</h2>
+    <div className="add-page">
+      <div className="add-card">
+        <div className="add-left">
+          <h1>Add Surplus Food</h1>
+          <p>
+            Help reduce food wastage by listing available food items for NGOs
+            and recipient organizations.
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Food Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        <form className="add-form" onSubmit={handleSubmit}>
+          <h2>Food Details</h2>
 
-        <input
-          type="text"
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+          <input
+            type="text"
+            placeholder="Food name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
 
-        <input
-          type="number"
-          placeholder="Price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-        />
+          <textarea
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
 
-        <button type="submit">Add Food</button>
-      </form>
+          <input
+            type="number"
+            placeholder="Price / Value"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            required
+          />
+
+          <button type="submit">Add Food</button>
+        </form>
+      </div>
     </div>
   );
 }
