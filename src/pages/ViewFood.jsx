@@ -1,33 +1,29 @@
 import { useEffect, useState } from "react";
+import { getFood } from "../services/api";
 
 function ViewFood() {
   const [foods, setFoods] = useState([]);
   const role = localStorage.getItem("role");
 
   useEffect(() => {
-    let data = JSON.parse(localStorage.getItem("foods"));
+    const loadFoods = async () => {
+      try {
+        const res = await getFood();
+        setFoods(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-    // 👉 Add default foods if empty
-    if (!data || data.length === 0) {
-      data = [
-        { name: "Pizza", quantity: 10 },
-        { name: "Burger", quantity: 15 },
-        { name: "Rice Meal", quantity: 20 },
-        { name: "Sandwich", quantity: 8 },
-      ];
-      localStorage.setItem("foods", JSON.stringify(data));
-    }
-
-    setFoods(data);
+    loadFoods();
   }, []);
 
-  // 👉 Order function
   const handleOrder = (food) => {
     const orders = JSON.parse(localStorage.getItem("orders")) || [];
 
     orders.push({
       name: food.name,
-      quantity: food.quantity,
+      price: food.price,
       status: "Pending",
     });
 
@@ -35,15 +31,17 @@ function ViewFood() {
     alert("Order placed successfully!");
   };
 
-  // 👉 Dashboard stats
   const totalFoods = foods.length;
-  const totalQty = foods.reduce((sum, f) => sum + Number(f.quantity), 0);
+
+  const totalPrice = foods.reduce(
+    (sum, food) => sum + Number(food.price || 0),
+    0
+  );
 
   return (
     <div style={styles.container}>
       <h2>🍔 Food Dashboard</h2>
 
-      {/* 📊 Stats */}
       <div style={styles.stats}>
         <div style={styles.statCard}>
           <h3>{totalFoods}</h3>
@@ -51,12 +49,11 @@ function ViewFood() {
         </div>
 
         <div style={styles.statCard}>
-          <h3>{totalQty}</h3>
-          <p>Total Quantity</p>
+          <h3>₹{totalPrice}</h3>
+          <p>Total Price</p>
         </div>
       </div>
 
-      {/* 🍔 Food Cards */}
       <div style={styles.grid}>
         {foods.map((food, index) => (
           <div
@@ -76,9 +73,8 @@ function ViewFood() {
             />
 
             <h3>{food.name}</h3>
-            <p>Quantity: {food.quantity}</p>
+            <p>Price: ₹{food.price}</p>
 
-            {/* NGO can order */}
             {role === "ngo" && (
               <button
                 style={styles.button}
