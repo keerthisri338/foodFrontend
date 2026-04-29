@@ -1,32 +1,29 @@
 import { useEffect, useState } from "react";
-import { getFood } from "../services/api";
-import "./Home.css";
+import "./Food.css";
 
 function ViewFood() {
   const [foods, setFoods] = useState([]);
   const role = localStorage.getItem("role");
 
-  const loadFoods = async () => {
-    try {
-      const res = await getFood();
-      setFoods(res.data);
-    } catch (error) {
-      console.log(error);
-      alert("Failed to load food data");
-    }
-  };
-
   useEffect(() => {
-    loadFoods();
+    const savedFoods = JSON.parse(localStorage.getItem("frontendFoods")) || [];
+    setFoods(savedFoods);
   }, []);
 
-  const handleOrder = (food) => {
+  const deleteFood = (id) => {
+    const updatedFoods = foods.filter((food) => food.id !== id);
+    setFoods(updatedFoods);
+    localStorage.setItem("frontendFoods", JSON.stringify(updatedFoods));
+    alert("Food deleted");
+  };
+
+  const orderFood = (food) => {
     const ngoName = prompt("Enter NGO Name:");
-    const location = prompt("Enter NGO Location:");
-    const paymentMode = prompt("Enter Payment Mode: Cash / UPI / Card");
+    const location = prompt("Enter Location:");
+    const paymentMode = prompt("Enter Payment Mode:");
 
     if (!ngoName || !location || !paymentMode) {
-      alert("Please enter all details");
+      alert("Enter all details");
       return;
     }
 
@@ -46,63 +43,42 @@ function ViewFood() {
     alert("Order request sent to admin");
   };
 
-  const totalFoods = foods.length;
-  const totalPrice = foods.reduce(
-    (sum, food) => sum + Number(food.price || 0),
-    0
-  );
-
   return (
-    <div className="home-page">
-      <section className="hero">
-        <div>
-          <h1>Reduce Food Waste. Improve Food Security.</h1>
-          <p>
-            A smart platform that connects food donors with NGOs to distribute
-            surplus food efficiently.
-          </p>
-        </div>
-      </section>
-
-      <div className="stats">
-        <div className="stat-box">
-          <h2>{totalFoods}</h2>
-          <p>Available Items</p>
-        </div>
-
-        <div className="stat-box">
-          <h2>₹{totalPrice}</h2>
-          <p>Total Food Value</p>
-        </div>
-
-        <div className="stat-box">
-          <h2>24/7</h2>
-          <p>Access</p>
-        </div>
+    <div className="food-home">
+      <div className="hero">
+        <h1>Reduce Food Waste</h1>
+        <p>Connect food donors with NGOs and help people in need.</p>
       </div>
 
-      <h2 className="section-title">Available Food Items</h2>
+      <h2 className="title">Available Food Items</h2>
 
-      <div className="food-grid">
-        {foods.map((food) => (
-          <div className="food-card" key={food.id}>
-            <img
-              src={`https://source.unsplash.com/400x300/?${food.name},food`}
-              alt={food.name}
-            />
+      {foods.length === 0 ? (
+        <h3 className="empty">No food added yet</h3>
+      ) : (
+        <div className="food-grid">
+          {foods.map((food) => (
+            <div className="food-card" key={food.id}>
+              <img src={food.image} alt={food.name} />
 
-            <div className="food-content">
-              <h3>{food.name}</h3>
-              <p>{food.description || "Fresh food available for donation."}</p>
-              <h4>₹{food.price}</h4>
+              <div className="food-info">
+                <h3>{food.name}</h3>
+                <p>{food.description}</p>
+                <h4>₹{food.price}</h4>
 
-              {role === "ngo" && (
-                <button onClick={() => handleOrder(food)}>Request Food</button>
-              )}
+                {role === "ngo" && (
+                  <button onClick={() => orderFood(food)}>Request Food</button>
+                )}
+
+                {role === "admin" && (
+                  <button className="delete" onClick={() => deleteFood(food.id)}>
+                    Delete
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
