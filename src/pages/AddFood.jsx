@@ -1,88 +1,103 @@
-
 import React, { useState } from "react";
 import { addFood } from "../services/api";
-import "./Food.css";
 
 function AddFood() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [image, setImage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const foodData = {
-      id: Date.now(),
       name,
       description,
-      price,
-      image: image || `https://source.unsplash.com/400x300/?${name},food`,
+      price: Number(price),
     };
 
     try {
-      await addFood({
-        name,
-        description,
-        price: Number(price),
-      });
+      await addFood(foodData);
+      alert("Food Added Successfully");
+
+      setName("");
+      setDescription("");
+      setPrice("");
     } catch (error) {
-      console.log("Backend save failed, but frontend saved");
+      console.log(error);
+      alert("Failed to add food");
     }
-
-    const oldFoods = JSON.parse(localStorage.getItem("frontendFoods")) || [];
-    localStorage.setItem("frontendFoods", JSON.stringify([...oldFoods, foodData]));
-
-    alert("Food added successfully");
-
-    setName("");
-    setDescription("");
-    setPrice("");
-    setImage("");
   };
 
   return (
-    <div className="food-add-page">
-      <div className="food-form-card">
-        <h1>🍽 Add Food Donation</h1>
-        <p>Add surplus food details for NGOs and needy people.</p>
+    <div style={styles.container}>
+      <h2>➕ Add New Food</h2>
 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Food Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <input
+          style={styles.input}
+          type="text"
+          placeholder="Food Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
 
-          <textarea
-            placeholder="Food Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
+        <input
+          style={styles.input}
+          type="text"
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
 
-          <input
-            type="number"
-            placeholder="Price / Value"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
-          />
+        <input
+          style={styles.input}
+          type="number"
+          placeholder="Price"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          required
+        />
 
-          <input
-            type="text"
-            placeholder="Image URL optional"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
-          />
-
-          <button type="submit">Add Food</button>
-        </form>
-      </div>
+        <button style={styles.button} type="submit">
+          Add Food
+        </button>
+      </form>
     </div>
   );
 }
+
+const styles = {
+  container: {
+    textAlign: "center",
+    padding: "40px",
+  },
+  form: {
+    width: "350px",
+    margin: "auto",
+    padding: "25px",
+    background: "#fff",
+    borderRadius: "15px",
+    boxShadow: "0 5px 20px rgba(0,0,0,0.2)",
+    display: "flex",
+    flexDirection: "column",
+    gap: "15px",
+  },
+  input: {
+    padding: "12px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+  },
+  button: {
+    padding: "12px",
+    border: "none",
+    borderRadius: "8px",
+    background: "#ff7e5f",
+    color: "white",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+};
 
 export default AddFood;
