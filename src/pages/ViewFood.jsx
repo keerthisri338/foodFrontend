@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
-import { getFood } from "../services/api";
+import { getFood, deleteFood } from "../services/api";
 
 function ViewFood() {
   const [foods, setFoods] = useState([]);
   const role = localStorage.getItem("role");
-
-  useEffect(() => {
-    loadFoods();
-  }, []);
 
   const loadFoods = async () => {
     try {
@@ -15,16 +11,32 @@ function ViewFood() {
       setFoods(res.data);
     } catch (error) {
       console.log(error);
+      alert("Failed to load foods");
+    }
+  };
+
+  useEffect(() => {
+    loadFoods();
+  }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteFood(id);
+      alert("Food deleted successfully");
+      loadFoods();
+    } catch (error) {
+      console.log(error);
+      alert("Delete failed. Check backend DELETE API.");
     }
   };
 
   const handleOrder = (food) => {
     const ngoName = prompt("Enter NGO Name:");
-    const location = prompt("Enter NGO Location:");
-    const paymentMode = prompt("Enter Payment Mode:");
+    const location = prompt("Enter Location:");
+    const paymentMode = prompt("Enter Payment Mode: Cash / UPI / Card");
 
     if (!ngoName || !location || !paymentMode) {
-      alert("Please fill all details");
+      alert("Please enter all details");
       return;
     }
 
@@ -44,111 +56,119 @@ function ViewFood() {
     alert("Order placed successfully");
   };
 
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#f8f9fb",
-        fontFamily: "Segoe UI",
-      }}
-    >
-      <div
-        style={{
-          background:
-            "linear-gradient(135deg,#ff7e5f,#feb47b)",
-          color: "white",
-          textAlign: "center",
-          padding: "60px 20px",
-        }}
-      >
-        <h1 style={{ fontSize: "48px", margin: 0 }}>
-          Reduce Food Waste
-        </h1>
+  const totalFoods = foods.length;
+  const totalPrice = foods.reduce(
+    (sum, food) => sum + Number(food.price || 0),
+    0
+  );
 
-        <p style={{ fontSize: "20px", marginTop: "10px" }}>
-          Connect donors with NGOs and help people in need
-        </p>
+  return (
+    <div style={styles.container}>
+      <h2>🍔 Food Dashboard</h2>
+
+      <div style={styles.stats}>
+        <div style={styles.statCard}>
+          <h3>{totalFoods}</h3>
+          <p>Total Items</p>
+        </div>
+
+        <div style={styles.statCard}>
+          <h3>₹{totalPrice}</h3>
+          <p>Total Price</p>
+        </div>
       </div>
 
-      <h2
-        style={{
-          textAlign: "center",
-          marginTop: "35px",
-          fontSize: "32px",
-        }}
-      >
-        Available Food Items
-      </h2>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit,minmax(260px,1fr))",
-          gap: "25px",
-          padding: "40px",
-        }}
-      >
+      <div style={styles.grid}>
         {foods.map((food) => (
-          <div
-            key={food.id}
-            style={{
-              background: "white",
-              borderRadius: "18px",
-              overflow: "hidden",
-              boxShadow:
-                "0 12px 30px rgba(0,0,0,0.15)",
-            }}
-          >
+          <div key={food.id} style={styles.card}>
             <img
-              src={`https://source.unsplash.com/400x300/?${food.name},food`}
-              alt={food.name}
-              style={{
-                width: "100%",
-                height: "180px",
-                objectFit: "cover",
-              }}
+              src={`https://source.unsplash.com/200x150/?${food.name}`}
+              alt="food"
+              style={styles.image}
             />
 
-            <div style={{ padding: "20px" }}>
-              <h3>{food.name}</h3>
+            <h3>{food.name}</h3>
+            <p>{food.description}</p>
+            <p>Price: ₹{food.price}</p>
 
-              <p style={{ color: "#666" }}>
-                {food.description}
-              </p>
+            {role === "ngo" && (
+              <button style={styles.orderBtn} onClick={() => handleOrder(food)}>
+                Order
+              </button>
+            )}
 
-              <h4
-                style={{
-                  color: "#ff6b35",
-                  fontSize: "24px",
-                }}
+            {role === "admin" && (
+              <button
+                style={styles.deleteBtn}
+                onClick={() => handleDelete(food.id)}
               >
-                ₹{food.price}
-              </h4>
-
-              {role === "ngo" && (
-                <button
-                  onClick={() => handleOrder(food)}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    border: "none",
-                    borderRadius: "10px",
-                    background: "#ff6b35",
-                    color: "white",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                  }}
-                >
-                  Request Food
-                </button>
-              )}
-            </div>
+                Delete
+              </button>
+            )}
           </div>
         ))}
       </div>
     </div>
   );
 }
+
+const styles = {
+  container: {
+    textAlign: "center",
+    padding: "20px",
+    background: "#f5f5f5",
+    minHeight: "100vh",
+  },
+  stats: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "20px",
+    marginBottom: "25px",
+  },
+  statCard: {
+    background: "#fff",
+    padding: "20px",
+    borderRadius: "12px",
+    width: "150px",
+    boxShadow: "0 5px 15px rgba(0,0,0,0.2)",
+  },
+  grid: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: "20px",
+  },
+  card: {
+    width: "230px",
+    padding: "15px",
+    borderRadius: "15px",
+    background: "#fff",
+    boxShadow: "0 5px 20px rgba(0,0,0,0.1)",
+  },
+  image: {
+    width: "100%",
+    height: "140px",
+    objectFit: "cover",
+    borderRadius: "10px",
+  },
+  orderBtn: {
+    marginTop: "10px",
+    padding: "8px 15px",
+    background: "#ff7e5f",
+    color: "#fff",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+  },
+  deleteBtn: {
+    marginTop: "10px",
+    padding: "8px 15px",
+    background: "red",
+    color: "#fff",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+  },
+};
 
 export default ViewFood;
