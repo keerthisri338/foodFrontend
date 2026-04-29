@@ -1,29 +1,30 @@
 import { useEffect, useState } from "react";
-import "./Food.css";
+import { getFood } from "../services/api";
 
 function ViewFood() {
   const [foods, setFoods] = useState([]);
   const role = localStorage.getItem("role");
 
   useEffect(() => {
-    const savedFoods = JSON.parse(localStorage.getItem("frontendFoods")) || [];
-    setFoods(savedFoods);
+    loadFoods();
   }, []);
 
-  const deleteFood = (id) => {
-    const updatedFoods = foods.filter((food) => food.id !== id);
-    setFoods(updatedFoods);
-    localStorage.setItem("frontendFoods", JSON.stringify(updatedFoods));
-    alert("Food deleted");
+  const loadFoods = async () => {
+    try {
+      const res = await getFood();
+      setFoods(res.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const orderFood = (food) => {
+  const handleOrder = (food) => {
     const ngoName = prompt("Enter NGO Name:");
-    const location = prompt("Enter Location:");
+    const location = prompt("Enter NGO Location:");
     const paymentMode = prompt("Enter Payment Mode:");
 
     if (!ngoName || !location || !paymentMode) {
-      alert("Enter all details");
+      alert("Please fill all details");
       return;
     }
 
@@ -40,45 +41,112 @@ function ViewFood() {
     });
 
     localStorage.setItem("orders", JSON.stringify(orders));
-    alert("Order request sent to admin");
+    alert("Order placed successfully");
   };
 
   return (
-    <div className="food-home">
-      <div className="hero">
-        <h1>Reduce Food Waste</h1>
-        <p>Connect food donors with NGOs and help people in need.</p>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#f8f9fb",
+        fontFamily: "Segoe UI",
+      }}
+    >
+      <div
+        style={{
+          background:
+            "linear-gradient(135deg,#ff7e5f,#feb47b)",
+          color: "white",
+          textAlign: "center",
+          padding: "60px 20px",
+        }}
+      >
+        <h1 style={{ fontSize: "48px", margin: 0 }}>
+          Reduce Food Waste
+        </h1>
+
+        <p style={{ fontSize: "20px", marginTop: "10px" }}>
+          Connect donors with NGOs and help people in need
+        </p>
       </div>
 
-      <h2 className="title">Available Food Items</h2>
+      <h2
+        style={{
+          textAlign: "center",
+          marginTop: "35px",
+          fontSize: "32px",
+        }}
+      >
+        Available Food Items
+      </h2>
 
-      {foods.length === 0 ? (
-        <h3 className="empty">No food added yet</h3>
-      ) : (
-        <div className="food-grid">
-          {foods.map((food) => (
-            <div className="food-card" key={food.id}>
-              <img src={food.image} alt={food.name} />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit,minmax(260px,1fr))",
+          gap: "25px",
+          padding: "40px",
+        }}
+      >
+        {foods.map((food) => (
+          <div
+            key={food.id}
+            style={{
+              background: "white",
+              borderRadius: "18px",
+              overflow: "hidden",
+              boxShadow:
+                "0 12px 30px rgba(0,0,0,0.15)",
+            }}
+          >
+            <img
+              src={`https://source.unsplash.com/400x300/?${food.name},food`}
+              alt={food.name}
+              style={{
+                width: "100%",
+                height: "180px",
+                objectFit: "cover",
+              }}
+            />
 
-              <div className="food-info">
-                <h3>{food.name}</h3>
-                <p>{food.description}</p>
-                <h4>₹{food.price}</h4>
+            <div style={{ padding: "20px" }}>
+              <h3>{food.name}</h3>
 
-                {role === "ngo" && (
-                  <button onClick={() => orderFood(food)}>Request Food</button>
-                )}
+              <p style={{ color: "#666" }}>
+                {food.description}
+              </p>
 
-                {role === "admin" && (
-                  <button className="delete" onClick={() => deleteFood(food.id)}>
-                    Delete
-                  </button>
-                )}
-              </div>
+              <h4
+                style={{
+                  color: "#ff6b35",
+                  fontSize: "24px",
+                }}
+              >
+                ₹{food.price}
+              </h4>
+
+              {role === "ngo" && (
+                <button
+                  onClick={() => handleOrder(food)}
+                  style={{
+                    width: "100%",
+                    padding: "12px",
+                    border: "none",
+                    borderRadius: "10px",
+                    background: "#ff6b35",
+                    color: "white",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                  }}
+                >
+                  Request Food
+                </button>
+              )}
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
